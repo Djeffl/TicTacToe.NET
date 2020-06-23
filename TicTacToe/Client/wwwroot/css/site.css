@@ -1,0 +1,30 @@
+﻿/*@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');*/
+
+table {
+	border: solid thick black;
+	table-layout: fixed;
+	width: 300px;
+}
+
+	table tbody {
+		display: table-row-group;
+		vertical-align: middle;
+		border-color: inherit;
+	}
+
+	table tbody tr {
+		/*margin: 30px;*/
+		display: table-row;
+		vertical-align: inherit;
+	}
+
+		table tbody tr td {
+			height: 115px;
+			width: 115px;
+			padding: 8px;
+			position: relative;
+			vertical-align: middle;
+			border: solid;
+			font-size: 30px;
+			text-align: center;
+		}

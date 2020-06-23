@@ -1,0 +1,130 @@
+﻿@using TicTacToe.Client.Models;
+@using Newtonsoft.Json;
+
+@page "/"
+
+<h1>Tic Tac Toe!</h1>
+
+<section>
+	<table>
+		<tbody>
+			@for (int row = 0; row < playfield.RowSize; row++)
+			{
+				var cRow = row;
+				<tr>
+					@for (int column = 0; column < playfield.ColumnSize; column++)
+					{
+						var cColumn = column;
+						<td @onclick="@(() => HandleOnBoardClick(cRow, cColumn))">
+							@playfield.GetValue(row, column)
+						</td>
+					}
+				</tr>
+			}
+		</tbody>
+	</table>
+</section>
+<section>
+	@if (this.playfield.IsFinished)
+	{
+		<p>Game finished!</p>
+		@if (this.playfield.EndState == EndState.Player1Won)
+		{
+			<p>Player One Won!</p>
+		}
+		@if (this.playfield.EndState == EndState.Player2Won)
+		{
+
+			<p>Player Two Won!</p>
+		}
+		@if (this.playfield.EndState == EndState.Tie)
+		{
+			<p>It's a Tie!</p>
+		}
+	}
+	<button @onclick="@(() => HandleOnResetClick())">Reset</button>
+</section>
+<section class="players">
+	Players
+	@foreach (var player in @playfield.Players)
+	{
+		<article class="player">@player.Name - @player.FieldMark</article>
+	}
+
+	Turn: @playfield.ActivePlayer.Name
+</section>
+
+
+
+@code {
+	private Playfield playfield;
+
+	protected override void OnParametersSet()
+	{
+		InitializeStart();
+	}
+
+	private void HandleOnBoardClick(int row, int column)
+	{
+		try
+		{
+			if (!playfield.IsFinished)
+			{
+				playfield.Move(row, column);
+			}
+		}
+		catch (TicTacToe.Client.Exceptions.InvalidMoveException)
+		{
+
+		}
+	}
+
+	private void HandleOnResetClick()
+	{
+		this.playfield.Reset();
+	}
+
+	//private void LogPlayersState()
+	//{
+	//	foreach (var player in players)
+	//	{
+	//		Console.WriteLine($"Name: {player.Name} - Active: {player.IsActive}");
+	//	}
+	//}
+
+	private void InitializeStart()
+	{
+		var players = InitializePlayers();
+
+		var playfield = InititializeField(players, matrixSize: 3);
+
+		this.playfield = playfield;
+		playfield.EndConditionReached += DisplayFinalScreen;
+		playfield.Start();
+	}
+
+	private Players InitializePlayers()
+	{
+		// This can be done via a factory pattern?
+		var players = new Players
+{
+			new Player("Player 1", PlayerType.Human, TicTacToeMark.O),
+			new Player("Player 2", PlayerType.Ai, TicTacToeMark.X)
+		};
+
+		return players;
+	}
+
+	private Playfield InititializeField(Players players, int matrixSize)
+	{
+		var playfield = new Playfield(players, matrixSize, matrixSize);
+
+		return playfield;
+	}
+
+	private void DisplayFinalScreen(object sender, EventArgs e)
+	{
+		var args = e as EndGameEventArgs;
+		Console.WriteLine("Game is Finished!");
+	}
+}
