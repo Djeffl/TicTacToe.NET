@@ -1,4 +1,5 @@
-﻿@using TicTacToe.Client.Models;
+﻿@using TicTacToe.Client.Models.Field;
+@using TicTacToe.Client.Models.Users;
 @using Newtonsoft.Json;
 
 @page "/"
@@ -8,11 +9,11 @@
 <section>
 	<table>
 		<tbody>
-			@for (int row = 0; row < playfield.RowSize; row++)
+			@for (int row = 0; row < 3; row++)
 			{
 				var cRow = row;
 				<tr>
-					@for (int column = 0; column < playfield.ColumnSize; column++)
+					@for (int column = 0; column < 3; column++)
 					{
 						var cColumn = column;
 						<td @onclick="@(() => HandleOnBoardClick(cRow, cColumn))">
@@ -25,19 +26,14 @@
 	</table>
 </section>
 <section>
-	@if (this.playfield.IsFinished)
+	@if (this.playfield.State.IsFinished)
 	{
 		<p>Game finished!</p>
-		@if (this.playfield.EndState == EndState.Player1Won)
+		@if (this.playfield.State.EndState == EndState.Win)
 		{
-			<p>Player One Won!</p>
+			<p>@this.playfield.State.Winner.Name wins!</p>
 		}
-		@if (this.playfield.EndState == EndState.Player2Won)
-		{
-
-			<p>Player Two Won!</p>
-		}
-		@if (this.playfield.EndState == EndState.Tie)
+		@if (this.playfield.State.EndState == EndState.Tie)
 		{
 			<p>It's a Tie!</p>
 		}
@@ -48,10 +44,10 @@
 	Players
 	@foreach (var player in @playfield.Players)
 	{
-		<article class="player">@player.Name - @player.FieldMark</article>
+		<article class="player">@player.Name - @player.Mark</article>
 	}
 
-	Turn: @playfield.ActivePlayer.Name
+	Turn: @GetActivePlayerName()
 </section>
 
 
@@ -68,7 +64,7 @@
 	{
 		try
 		{
-			if (!playfield.IsFinished)
+			if (!playfield.State.IsFinished)
 			{
 				playfield.Move(row, column);
 			}
@@ -84,40 +80,36 @@
 		this.playfield.Reset();
 	}
 
-	//private void LogPlayersState()
-	//{
-	//	foreach (var player in players)
-	//	{
-	//		Console.WriteLine($"Name: {player.Name} - Active: {player.IsActive}");
-	//	}
-	//}
+	private string GetActivePlayerName() 
+	{
+		return this.playfield.State.ActivePlayer.Name;
+	}
 
 	private void InitializeStart()
 	{
 		var players = InitializePlayers();
 
-		var playfield = InititializeField(players, matrixSize: 3);
+		var playfield = InititializeField(players);
 
 		this.playfield = playfield;
-		playfield.EndConditionReached += DisplayFinalScreen;
+		playfield.State.EndConditionReached += DisplayFinalScreen;
 		playfield.Start();
 	}
 
 	private Players InitializePlayers()
 	{
-		// This can be done via a factory pattern?
 		var players = new Players
 {
 			new Player("Player 1", PlayerType.Human, TicTacToeMark.O),
-			new Player("Player 2", PlayerType.Ai, TicTacToeMark.X)
+			new Player("Player 2", PlayerType.Human, TicTacToeMark.X)
 		};
 
 		return players;
 	}
 
-	private Playfield InititializeField(Players players, int matrixSize)
+	private Playfield InititializeField(Players players)
 	{
-		var playfield = new Playfield(players, matrixSize, matrixSize);
+		var playfield = new Playfield(players);
 
 		return playfield;
 	}

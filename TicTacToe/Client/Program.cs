@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Text;
 using Microsoft.AspNetCore.Blazor.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
 
 namespace TicTacToe.Client
 {
@@ -13,6 +14,13 @@ namespace TicTacToe.Client
 		{
 			var builder = WebAssemblyHostBuilder.CreateDefault(args);
 			builder.RootComponents.Add<App>("app");
+
+			builder.Configuration.Properties.TryGetValue("BaseUrl", out var baseAddressObj);
+			builder.Services.AddTransient(sp =>
+			new HttpClient
+			{
+				BaseAddress = new Uri(baseAddressObj.ToString())
+			});
 
 			await builder.Build().RunAsync();
 		}

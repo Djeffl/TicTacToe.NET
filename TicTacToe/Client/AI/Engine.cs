@@ -27,5 +27,7 @@ namespace TicTacToe.Client.AI
 
 			return stateBox.GenerateMove();
 		}
+
+
 	}
 }
